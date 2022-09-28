@@ -2,10 +2,6 @@ terraform {
   backend "remote" {
     hostname     = "app.terraform.io"
     organization = "average"
-
-    workspaces {
-      prefix = "client-"
-    }
   }
 
   required_providers {
