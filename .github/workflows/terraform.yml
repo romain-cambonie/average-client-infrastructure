@@ -17,6 +17,8 @@ jobs:
     steps:
       - name: Checkout client infrastructure repository
         uses: actions/checkout@v3
+        with:
+          repository: romain-cambonie/average-client-infrastructure
 
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v2
