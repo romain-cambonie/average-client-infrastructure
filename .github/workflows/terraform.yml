@@ -27,16 +27,18 @@ jobs:
       - name: Terraform Init
         id: terraform-init
         run: terraform init
+        continue-on-error: true
         env:
-          TF_WORKSPACE: 'cli'
+          TF_WORKSPACE: ${{ inputs.terraform-workspace }}
+
 
       # Will create workspace on terraform cloud if it does not exist
       # Note: Will be simplified once https://github.com/hashicorp/terraform/pull/31633 will be merged
       # New syntax : terraform workspace select -or-create ${{ inputs.terraform-workspace }}
       - name: Terraform Workspace select or create
+        if: steps.terraform-init.outcome == 'failure'
         id: workspace-setup
-        run: |
-          terraform workspace select ${{ inputs.terraform-workspace }} || terraform workspace new ${{ inputs.terraform-workspace }} 
+        run: terraform workspace new ${{ inputs.terraform-workspace }}
 
         #   echo >> {
         #   "data": {
