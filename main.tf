@@ -4,6 +4,7 @@ terraform {
     organization = "average"
 
     workspaces {
+      name: "default-for-init"
       prefix = "client-"
     }
   }
