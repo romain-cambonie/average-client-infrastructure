@@ -28,6 +28,10 @@ jobs:
         id: fmt
         run: terraform fmt -check
 
+      - name: Terraform Init
+        id: terraform-init
+        run: terraform init
+
       # Will create workspace on terraform cloud if it does not exist
       # Note: Will be simplified once https://github.com/hashicorp/terraform/pull/31633 will be merged
       # New syntax : terraform workspace select -or-create ${{ inputs.terraform-workspace }}
@@ -35,10 +39,6 @@ jobs:
         id: workspace-setup
         run: |
           terraform workspace select ${{ inputs.terraform-workspace }} || terraform workspace new ${{ inputs.terraform-workspace }} 
-
-      - name: Terraform Init
-        id: terraform-init
-        run: terraform init
 
         #   echo >> {
         #   "data": {
