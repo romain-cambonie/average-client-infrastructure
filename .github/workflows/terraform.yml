@@ -3,10 +3,9 @@ name: Terraform
 on:
   workflow_call:
     inputs:
-      terraform-workspace-prefix:
+      terraform-workspace:
         type: string
-        required: false
-        default: 'feature-'
+        required: true
     secrets:
       TF_API_TOKEN:
         required: true
@@ -25,18 +24,16 @@ jobs:
         with:
           cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}
 
-      - name: Get workspace name from branch name
-        id: terraform-workspace-name
-        run: |
-          BRANCH_NAME=$(echo ${{ github.event.ref }} | cut -d'/' -f 4)
-          echo "::set-output name=value::${{ inputs.terraform-workspace-prefix }}$BRANCH_NAME"
+      - name: Terraform fmt
+        id: fmt
+        run: terraform fmt -check
 
       # Terraform init will create workspace on terraform cloud if it does not exist
       - name: Terraform Init
         id: terraform-init
         run: terraform init
         env:
-          TF_WORKSPACE: ${{ steps.terraform-workspace-name.outputs.value }}
+          TF_WORKSPACE: ${{ inputs.terraform-workspace }}
 
         #   echo >> {
         #   "data": {
