@@ -5,7 +5,6 @@ terraform {
 
     workspaces {
       name = "default-for-init"
-      prefix = "client-"
     }
   }
 
