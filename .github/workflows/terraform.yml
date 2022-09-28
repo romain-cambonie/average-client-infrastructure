@@ -27,6 +27,8 @@ jobs:
       - name: Terraform Init
         id: terraform-init
         run: terraform init
+        env:
+          TF_WORKSPACE: 'cli'
 
       # Will create workspace on terraform cloud if it does not exist
       # Note: Will be simplified once https://github.com/hashicorp/terraform/pull/31633 will be merged
