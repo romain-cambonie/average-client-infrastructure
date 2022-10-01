@@ -48,6 +48,8 @@ jobs:
         # }
 
   create-environment:
+    needs:
+      - setup-workspace-if-needed
     runs-on: ubuntu-latest
     steps:
       - name: Checkout client infrastructure repository
