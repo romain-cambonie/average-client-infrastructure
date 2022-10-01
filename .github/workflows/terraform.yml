@@ -9,8 +9,44 @@ on:
     secrets:
       TF_API_TOKEN:
         required: true
+      AWS_ACCESS_KEY_ID:
+        required: true
+      AWS_SECRET_ACCESS_KEY:
+        required: true
 
 jobs:
+  setup-workspace-if-needed:
+    uses: romain-cambonie/serenity-workflow-dev/.github/workflows/_setup-new-workspace-if-needed.terraform.reusable.yml@master
+    with:
+      organisation-name: ${{ inputs.organisation-name }}
+      workspace-name: ${{ inputs.workspace-name }}
+    secrets:
+      TF_API_TOKEN: ${{ secrets.TF_API_TOKEN }}
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+
+      # Will create workspace on terraform cloud if it does not exist
+      # Note: Will be simplified once https://github.com/hashicorp/terraform/pull/31633 will be merged
+      # New syntax : terraform workspace select -or-create ${{ inputs.terraform-workspace }}
+#      - name: Terraform Workspace select or create
+#        if: steps.terraform-init.outcome == 'failure'
+#        id: workspace-setup
+#        run: terraform workspace new ${{ inputs.terraform-workspace }}
+
+          #   echo >> {
+          #   "data": {
+          #     "id":"ws-DgsiZWtRctCdPZpi",
+          #     "attributes": {
+          #       "key":"AWS_SECRET_ACCESS_KEY",
+          #       "value":"fsdhgjkghjmlhgd",
+          #       "category":"env",
+          #       "hcl": false,
+          #       "sensitive": true
+          #     },
+          #     "type":"vars"
+          #   }
+        # }
+
   create-environment:
     runs-on: ubuntu-latest
     steps:
@@ -27,47 +63,9 @@ jobs:
       - name: Terraform Init
         id: terraform-init
         run: terraform init
-        continue-on-error: true
         env:
           TF_WORKSPACE: ${{ inputs.terraform-workspace }}
 
-
-      # Will create workspace on terraform cloud if it does not exist
-      # Note: Will be simplified once https://github.com/hashicorp/terraform/pull/31633 will be merged
-      # New syntax : terraform workspace select -or-create ${{ inputs.terraform-workspace }}
-      - name: Terraform Workspace select or create
-        if: steps.terraform-init.outcome == 'failure'
-        id: workspace-setup
-        run: terraform workspace new ${{ inputs.terraform-workspace }}
-
-        #   echo >> {
-        #   "data": {
-        #     "id":"ws-DgsiZWtRctCdPZpi",
-        #     "attributes": {
-        #       "key":"AWS_SECRET_ACCESS_KEY",
-        #       "value":"fsdhgjkghjmlhgd",
-        #       "category":"env",
-        #       "hcl": false,
-        #       "sensitive": true
-        #     },
-        #     "type":"vars"
-        #   }
-        # }
-
-        # We need to have valid aws credentials in the workspace to be able to use the provider.
-#      - name: Set AWS credentials
-#        env:
-#          TERRAFORM_BEARER_TOKEN: ${{ secrets.TF_API_TOKEN }}
-#        run: |
-#          touch payload.json
-#          jq '{ data: { id: "ws-DgsiZWtRctCdPZpi", attributes: { key: "AWS_SECRET_ACCESS_KEY", value:"fsdhgjkghjmlhgd" }, type: "vars" } }' > payload.json
-#          curl \
-#          --header "Authorization: Bearer $TERRAFORM_BEARER_TOKEN" \
-#          --header "Content-Type: application/vnd.api+json" \
-#          --request POST \
-#          --data @payload.json \
-#          https://app.terraform.io/api/v2/vars
-#
 #      - name: Terraform Plan
 #        id: plan
 #        #if: github.event_name == 'pull_request'
@@ -105,7 +103,6 @@ jobs:
 #              repo: context.repo.repo,
 #              body: output
 #            })
-
 #      - name: Terraform Plan Status
 #        if: steps.plan.outcome == 'failure'
 #        run: exit 1
