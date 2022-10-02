@@ -19,7 +19,7 @@ jobs:
     uses: romain-cambonie/serenity-workflow-dev/.github/workflows/_setup-new-workspace-if-needed.terraform.reusable.yml@master
     with:
       organisation-name: 'average'
-      workspace-name: ${{ inputs.terraform-workspace }}
+      workspace-name-with-prefix: client-${{ inputs.terraform-workspace }}
     secrets:
       TF_API_TOKEN: ${{ secrets.TF_API_TOKEN }}
       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
