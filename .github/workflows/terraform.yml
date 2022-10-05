@@ -28,28 +28,6 @@ jobs:
       AWS_ACCESS_KEY_SECRET : ${{ secrets.AWS_ACCESS_KEY_SECRET }}
       GPG_SECRET_SIGNING_PASSPHRASE: ${{ secrets.GPG_SECRET_SIGNING_PASSPHRASE }}
 
-      # Will create workspace on terraform cloud if it does not exist
-      # Note: Will be simplified once https://github.com/hashicorp/terraform/pull/31633 will be merged
-      # New syntax : terraform workspace select -or-create ${{ inputs.terraform-workspace }}
-#      - name: Terraform Workspace select or create
-#        if: steps.terraform-init.outcome == 'failure'
-#        id: workspace-setup
-#        run: terraform workspace new ${{ inputs.terraform-workspace }}
-
-          #   echo >> {
-          #   "data": {
-          #     "id":"ws-DgsiZWtRctCdPZpi",
-          #     "attributes": {
-          #       "key":"AWS_SECRET_ACCESS_KEY",
-          #       "value":"fsdhgjkghjmlhgd",
-          #       "category":"env",
-          #       "hcl": false,
-          #       "sensitive": true
-          #     },
-          #     "type":"vars"
-          #   }
-        # }
-
   create-environment:
     needs:
       - setup-workspace-if-needed
@@ -71,14 +49,14 @@ jobs:
         env:
           TF_WORKSPACE: ${{ inputs.terraform-workspace }}
 
-#      - name: Terraform Plan
-#        id: plan
-#        #if: github.event_name == 'pull_request'
-#        run: terraform plan -no-color -input=false
-#        continue-on-error: true
-#        env:
-#          TF_WORKSPACE: ${{ steps.terraform-workspace-name.outputs.value }}
-#
+      - name: Terraform Plan
+        id: plan
+        #if: github.event_name == 'pull_request'
+        run: terraform plan -no-color -input=false
+        continue-on-error: true
+        env:
+          TF_WORKSPACE: ${{ steps.terraform-workspace-name.outputs.value }}
+
 #      - name: Update Pull Request
 #        uses: actions/github-script@v6.0.0
 #        #if: github.event_name == 'pull_request'
@@ -108,11 +86,13 @@ jobs:
 #              repo: context.repo.repo,
 #              body: output
 #            })
-#      - name: Terraform Plan Status
-#        if: steps.plan.outcome == 'failure'
-#        run: exit 1
-#      - name: Terraform Apply
-#        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
-#        run: terraform apply -auto-approve -input=false
-#        env:
-#          TF_WORKSPACE: production
+
+      - name: Terraform Plan Status
+        if: steps.plan.outcome == 'failure'
+        run: exit 1
+
+      - name: Terraform Apply
+        if: github.event_name == 'push'
+        run: terraform apply -auto-approve -input=false
+        env:
+          TF_WORKSPACE: client-${{ inputs.terraform-workspace }}
