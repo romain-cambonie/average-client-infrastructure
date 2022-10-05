@@ -53,9 +53,8 @@ jobs:
         id: plan
         #if: github.event_name == 'pull_request'
         run: terraform plan -no-color -input=false
-        continue-on-error: true
         env:
-          TF_WORKSPACE: ${{ steps.terraform-workspace-name.outputs.value }}
+          TF_WORKSPACE: ${{ inputs.terraform-workspace }}
 
 #      - name: Update Pull Request
 #        uses: actions/github-script@v6.0.0
@@ -87,12 +86,7 @@ jobs:
 #              body: output
 #            })
 
-      - name: Terraform Plan Status
-        if: steps.plan.outcome == 'failure'
-        run: exit 1
-
       - name: Terraform Apply
-        if: github.event_name == 'push'
         run: terraform apply -auto-approve -input=false
         env:
           TF_WORKSPACE: client-${{ inputs.terraform-workspace }}
